@@ -5,14 +5,13 @@
 #include <vector>
 #include <chrono>
 #include <optional>
-#include <functional>
 
 class UniqueIDGenerator {
-private:
     long long currentID;
 
 public:
-    UniqueIDGenerator() : currentID(0) {}
+    UniqueIDGenerator() : currentID(0) {
+    }
 
     long long generateID() {
         auto const now = std::chrono::system_clock::now();
@@ -23,33 +22,49 @@ public:
     }
 };
 
-typedef struct {
+typedef struct Car_t {
     long long id;
     std::string description;
     bool rented;
+
+    template<class Archive>
+    void serialize(Archive &archive) {
+        archive(id, description, rented);
+    }
 } Car;
 
-typedef struct {
+typedef struct User_t {
     long long id;
     std::string name;
-    // we reference cards by their id
+    // we reference cars by their id
     std::vector<long long> rentedCars;
     std::vector<long long> borrowedCars;
-    // should be encrypted
     std::string password;
+
+    template<class Archive>
+    void serialize(Archive &archive) {
+        archive(id, name, rentedCars, borrowedCars, password);
+    }
 } User;
 
 class Database {
-private:
     std::vector<User> users;
     std::vector<Car> cars;
     UniqueIDGenerator idGenerator;
 
+    static const std::string FILENAME;
+
 public:
     Database();
-    User *createUser(const std::string& name, const std::string& password);
-    std::optional<User*> getUserByName(const std::string& name);
+
+    User *createUser(const std::string &name, const std::string &password);
+
+    std::optional<User *> getUserByName(const std::string &name);
+
     void listCars();
+
+    void save() const;
+
     ~Database();
 };
 

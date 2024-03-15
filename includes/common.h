@@ -8,25 +8,31 @@
 #include <sstream>
 
 using CommandArgs = std::map<std::string, std::string>;
+
 typedef struct {
-    std::function<void(const CommandArgs&)> execute;
+    std::function<void(const CommandArgs &)> execute;
     // defined if the used must be logged or not
     bool needAuth;
     // associate every argument with a description
-    std::vector<std::pair<std::string, std::string>> argsInfos;
+    std::vector<std::pair<std::string, std::string> > argsInfos;
 } Command;
 
 // global database instance
 extern Database database;
-extern User* currentUser;
+extern User *currentUser;
 
 // functions
-std::pair<std::string, std::map<std::string, std::string>> parseInput(const std::string& input);
-void help(const CommandArgs& args);
-void quit(const CommandArgs& args);
-void login(const CommandArgs& args);
-void logout(const CommandArgs& args);
-void registerUser(const CommandArgs& args);
+std::pair<std::string, std::map<std::string, std::string> > parseInput(const std::string &input);
+
+void help(const CommandArgs &args);
+
+void quit(const CommandArgs &args);
+
+void login(const CommandArgs &args);
+
+void logout(const CommandArgs &args);
+
+void registerUser(const CommandArgs &args);
 
 // commands definition
 const std::map<std::string, Command> commands = {

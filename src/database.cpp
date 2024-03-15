@@ -1,11 +1,23 @@
 #include "database.h"
+#include "cereal/archives/binary.hpp"
+#include "cereal/types/vector.hpp"
+#include "cereal/types/string.hpp"
 #include <iostream>
+#include <functional>
+#include <fstream>
+
+const std::string Database::FILENAME = "database.bin";
 
 Database::Database() {
-    this->idGenerator = UniqueIDGenerator();
+    if (std::ifstream is(FILENAME, std::ios::binary); is) {
+        cereal::BinaryInputArchive archive(is);
+        archive(this->users, this->cars);
+    } else {
+        throw std::runtime_error("File not found: " + FILENAME);
+    }
 }
 
-User *Database::createUser(const std::string& name, const std::string& password) {
+User *Database::createUser(const std::string &name, const std::string &password) {
     std::hash<std::string> constexpr hasher;
     std::string const hashedPassword = std::to_string(hasher(password));
 
@@ -24,7 +36,7 @@ void Database::listCars() {
     std::vector<Car> availableCars;
 
     // filter cars that are not rented
-    std::copy_if(this->cars.begin(), this->cars.end(), std::back_inserter(availableCars), [](const Car& car) {
+    std::copy_if(this->cars.begin(), this->cars.end(), std::back_inserter(availableCars), [](const Car &car) {
         return !car.rented;
     });
 
@@ -35,8 +47,8 @@ void Database::listCars() {
     }
 }
 
-std::optional<User*> Database::getUserByName(const std::string& name) {
-    for (auto& user : this->users) {
+std::optional<User *> Database::getUserByName(const std::string &name) {
+    for (auto &user: this->users) {
         if (user.name == name) {
             return &user;
         }
@@ -45,8 +57,18 @@ std::optional<User*> Database::getUserByName(const std::string& name) {
     return std::nullopt;
 }
 
-Database::~Database() {
-    std::cout << "Database destroyed" << std::endl;
+void Database::save() const {
+    std::ofstream os(FILENAME, std::ios::binary);
+
+    if (!os) {
+        throw std::runtime_error("Failed to open file: " + FILENAME);
+    }
+
+    cereal::BinaryOutputArchive oarchive(os);
+    oarchive(this->users, this->cars);
 }
 
-
+Database::~Database() {
+    save();
+    std::cout << "Database saved" << std::endl;
+}

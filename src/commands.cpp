@@ -1,7 +1,8 @@
 #include "../includes/common.h"
+#include <functional>
 using namespace std;
 
-pair<string, map<string, string> > parseInput(const string &input) {
+pair<string, map<string, string>> parseInput(const string &input) {
     map<string, string> argsMap;
     istringstream iss(input);
     string buffer;
@@ -40,21 +41,22 @@ void quit(const CommandArgs &args) {
 
 void login(const CommandArgs &args) {
     if (auto const user = database.getUserByName(args.at("u")).value_or(nullptr)) {
-        std::hash<std::string> constexpr hasher;
+        hash<string> constexpr hasher;
 
-        if (std::string const hashedInputPassword = std::to_string(hasher(args.at("p"))); user->password != hashedInputPassword) {
-            std::cout << "Invalid username or password\n";
+        if (string const hashedInputPassword = to_string(hasher(args.at("p")));
+            user->password != hashedInputPassword) {
+            cout << "Invalid username or password\n";
         } else {
             currentUser = user;
-            std::cout << "Welcome " << user->name << "!\n";
+            cout << "Welcome " << user->name << "!\n";
         }
     } else {
-        std::cout << "Invalid username or password\n";
+        cout << "Invalid username or password\n";
     }
 }
 
 void logout(const CommandArgs &args) {
-    std::cout << "Bye " << currentUser->name << "!\n";
+    cout << "Bye " << currentUser->name << "!\n";
     currentUser = nullptr;
 }
 
@@ -62,5 +64,5 @@ void registerUser(const CommandArgs &args) {
     User *newUser = database.createUser(args.at("u"), args.at("p"));
 
     currentUser = newUser;
-    std::cout << "User created, logged in as \"" << newUser->name << "\"\n";
+    cout << "User created, logged in as \"" << newUser->name << "\"\n";
 }
