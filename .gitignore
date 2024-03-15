@@ -1,14 +1,35 @@
-# Ignore CMake build directory
+.idea/
 build/
+cmake-build-debug/
+# Prerequisites
+*.d
 
-# Ignore CMake generated files
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-Makefile
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
 
-# Ignore Visual Studio Code files
-.vscode/
+# Precompiled Headers
+*.gch
+*.pch
 
-#Ignore binary files
-car-rental
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
