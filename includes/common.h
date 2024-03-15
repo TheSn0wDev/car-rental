@@ -27,16 +27,14 @@ void quit(const CommandArgs& args);
 void login(const CommandArgs& args);
 void logout(const CommandArgs& args);
 void registerUser(const CommandArgs& args);
-void test(const CommandArgs& args);
 
 // commands definition
 const std::map<std::string, Command> commands = {
     {"help", {help, false, {}}},
     {"quit", {quit, false, {}}},
-    {"login", {login, false, {{"-u", "the username"}, {"-p", "the password"}}}},
+    {"login", {login, false, {{"u", "the username"}, {"p", "the password"}}}},
     {"logout", {logout, true, {}}},
-    {"register", {registerUser, false, {{"-u", "set the username"}, {"-p", "set the password"}}}},
-    {"test", {test, true, {}}}
+    {"register", {registerUser, false, {{"u", "set the username"}, {"p", "set the password"}}}},
 };
 
 #endif //UTILS_H

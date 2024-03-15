@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <optional>
+#include <functional>
 
 class UniqueIDGenerator {
 private:
@@ -24,6 +26,7 @@ public:
 typedef struct {
     long long id;
     std::string description;
+    bool rented;
 } Car;
 
 typedef struct {
@@ -40,11 +43,13 @@ class Database {
 private:
     std::vector<User> users;
     std::vector<Car> cars;
+    UniqueIDGenerator idGenerator;
 
 public:
     Database();
-    void listCards();
-    void listUsers();
+    User *createUser(const std::string& name, const std::string& password);
+    std::optional<User*> getUserByName(const std::string& name);
+    void listCars();
     ~Database();
 };
 

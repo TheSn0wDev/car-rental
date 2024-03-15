@@ -2,9 +2,14 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <csignal>
 
 auto database = Database();
 User *currentUser = nullptr;
+
+void signalHandler(int signum) {
+    quit({});
+}
 
 bool canExecute(const std::string& command, std::map<std::string, std::string> args) {
     if (commands.find(command) == commands.end()) {
@@ -33,6 +38,8 @@ bool canExecute(const std::string& command, std::map<std::string, std::string> a
 }
 
 int main(int argc, char *argv[]) {
+    signal(SIGINT, signalHandler);
+
     while (true) {
         std::string input;
         std::cout << "$> ";

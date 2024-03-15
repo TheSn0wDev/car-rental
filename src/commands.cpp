@@ -1,7 +1,7 @@
 #include "../includes/common.h"
 using namespace std;
 
-pair<string, map<string, string>> parseInput(const string& input) {
+pair<string, map<string, string> > parseInput(const string &input) {
     map<string, string> argsMap;
     istringstream iss(input);
     string buffer;
@@ -24,32 +24,43 @@ pair<string, map<string, string>> parseInput(const string& input) {
     return make_pair(words[0], argsMap);
 }
 
-void help(const CommandArgs& args) {
-    for (const auto& command : commands) {
-        std::cout << command.first << ":\n";
-        for (const auto& arg : command.second.argsInfos) {
-            std::cout << "  -" << arg.first << ": " << arg.second << "\n";
+void help(const CommandArgs &args) {
+    for (const auto &[name, command]: commands) {
+        std::cout << name << ":\n";
+        for (const auto &[tag, description]: command.argsInfos) {
+            std::cout << "  -" << tag << ": " << description << "\n";
         }
     }
 }
 
-void quit(const CommandArgs& args) {
+void quit(const CommandArgs &args) {
     std::cout << "Goodbye!\n";
     exit(0);
 }
 
-void login(const CommandArgs& args) {
-    std::cout << "login\n";
+void login(const CommandArgs &args) {
+    if (auto const user = database.getUserByName(args.at("u")).value_or(nullptr)) {
+        std::hash<std::string> constexpr hasher;
+
+        if (std::string const hashedInputPassword = std::to_string(hasher(args.at("p"))); user->password != hashedInputPassword) {
+            std::cout << "Invalid username or password\n";
+        } else {
+            currentUser = user;
+            std::cout << "Welcome " << user->name << "!\n";
+        }
+    } else {
+        std::cout << "Invalid username or password\n";
+    }
 }
 
-void logout(const CommandArgs& args) {
-    std::cout << "logout\n";
+void logout(const CommandArgs &args) {
+    std::cout << "Bye " << currentUser->name << "!\n";
+    currentUser = nullptr;
 }
 
-void registerUser(const CommandArgs& args) {
-    std::cout << "register\n";
-}
+void registerUser(const CommandArgs &args) {
+    User *newUser = database.createUser(args.at("u"), args.at("p"));
 
-void test(const CommandArgs& args) {
-    std::cout << "test\n";
+    currentUser = newUser;
+    std::cout << "User created, logged in as \"" << newUser->name << "\"\n";
 }
