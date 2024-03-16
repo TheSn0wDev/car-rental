@@ -122,6 +122,8 @@ void removeCar(const CommandArgs &args) {
     } else {
         if (car->ownerId != currentUser->id) {
             cout << "This car doesn't belong to you" << endl;
+        } else if (car->rented) {
+            cout << "This car is currently rented" << endl;
         } else {
             database.removeCarByID(id.value());
             cout << "Car removed" << endl;
