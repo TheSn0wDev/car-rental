@@ -28,7 +28,6 @@ User *Database::createUser(const std::string &name, const std::string &password)
         idGenerator.generateID(),
         name,
         {},
-        {},
         hashedPassword
     });
 
