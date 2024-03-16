@@ -40,12 +40,11 @@ typedef struct User_t {
     std::string name;
     // we reference cars by their id
     std::vector<long long> rentedCars;
-    std::vector<long long> ownedCars;
     std::string password;
 
     template<class Archive>
     void serialize(Archive &archive) {
-        archive(id, name, rentedCars, ownedCars, password);
+        archive(id, name, rentedCars, password);
     }
 } User;
 
