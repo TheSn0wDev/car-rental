@@ -35,7 +35,11 @@ void help(const CommandArgs &args) {
 }
 
 void quit(const CommandArgs &args) {
-    std::cout << "Goodbye!\n";
+    if (currentUser != nullptr) {
+        std::cout << "Bye " << currentUser->name << "!\n";
+    } else {
+        std::cout << "Goodbye!\n";
+    }
     exit(0);
 }
 
@@ -65,4 +69,31 @@ void registerUser(const CommandArgs &args) {
 
     currentUser = newUser;
     cout << "User created, logged in as \"" << newUser->name << "\"\n";
+}
+
+void list(const CommandArgs &args) {
+    if (const auto& cars = database.getCars(); cars.empty()) {
+        std::cout << "No cars available at the moment" << std::endl;
+    } else {
+        dumpCarList(cars);
+    }
+}
+
+void returnCar(const CommandArgs &args) {
+
+}
+
+void borrow(const CommandArgs &args) {
+
+}
+
+void addCar(const CommandArgs &args) {
+}
+
+void removeCar(const CommandArgs &args) {
+
+}
+
+void owned(const CommandArgs &args) {
+
 }

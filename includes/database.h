@@ -26,10 +26,11 @@ typedef struct Car_t {
     long long id;
     std::string description;
     bool rented;
+    std::optional<std::chrono::time_point<std::chrono::system_clock>> until;
 
     template<class Archive>
     void serialize(Archive &archive) {
-        archive(id, description, rented);
+        archive(id, description, rented, until);
     }
 } Car;
 
@@ -64,6 +65,8 @@ public:
     void listCars();
 
     void save() const;
+
+    [[nodiscard]] const std::vector<Car> &getCars() const;
 
     ~Database();
 };

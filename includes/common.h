@@ -21,8 +21,9 @@ typedef struct {
 extern Database database;
 extern User *currentUser;
 
-// functions
 std::pair<std::string, std::map<std::string, std::string> > parseInput(const std::string &input);
+
+void dumpCarList(const std::vector<Car> &cars);
 
 void help(const CommandArgs &args);
 
@@ -34,6 +35,18 @@ void logout(const CommandArgs &args);
 
 void registerUser(const CommandArgs &args);
 
+void list(const CommandArgs &args);
+
+void returnCar(const CommandArgs &args);
+
+void borrow(const CommandArgs &args);
+
+void addCar(const CommandArgs &args);
+
+void removeCar(const CommandArgs &args);
+
+void owned(const CommandArgs &args);
+
 // commands definition
 const std::map<std::string, Command> commands = {
     {"help", {help, false, {}}},
@@ -41,6 +54,13 @@ const std::map<std::string, Command> commands = {
     {"login", {login, false, {{"u", "the username"}, {"p", "the password"}}}},
     {"logout", {logout, true, {}}},
     {"register", {registerUser, false, {{"u", "set the username"}, {"p", "set the password"}}}},
+    {"list", {list, false, {}}},
+    {"rent", {rent, true, {{"c", "the car id"}}}},
+    {"return", {returnCar, true, {{"c", "the car id"}}}},
+    {"borrow", {borrow, true, {{"u", "the user id"}}}},
+    {"add", {addCar, true, {{"m", "the car model"}, {"y", "the car year"}}}},
+    {"remove", {removeCar, true, {{"c", "the car id"}}}},
+    {"owned", {owned, true, {}}}
 };
 
 #endif //UTILS_H

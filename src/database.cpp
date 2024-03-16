@@ -1,10 +1,12 @@
 #include "database.h"
-#include "cereal/archives/binary.hpp"
-#include "cereal/types/vector.hpp"
-#include "cereal/types/string.hpp"
 #include <iostream>
 #include <functional>
 #include <fstream>
+#include "cereal/archives/binary.hpp"
+#include "cereal/types/vector.hpp"
+#include "cereal/types/string.hpp"
+#include "cereal/types/chrono.hpp"
+#include "cereal/types/optional.hpp"
 
 const std::string Database::FILENAME = "database.bin";
 
@@ -68,7 +70,11 @@ void Database::save() const {
     oarchive(this->users, this->cars);
 }
 
+const std::vector<Car> &Database::getCars() const {
+    return this->cars;
+}
+
 Database::~Database() {
     save();
-    std::cout << "Database saved" << std::endl;
+    std::cout << "Save car rental state" << std::endl;
 }

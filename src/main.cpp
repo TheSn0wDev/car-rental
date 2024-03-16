@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <string>
+using namespace std;
 
 auto database = Database();
 User *currentUser = nullptr;
@@ -11,13 +12,13 @@ void signalHandler(int signum) {
     quit({});
 }
 
-bool canExecute(const std::string &command, std::map<std::string, std::string> args) {
+bool canExecute(const string &command, map<string, string> args) {
     if (commands.find(command) == commands.end()) {
-        std::cout << "Command not found" << std::endl;
+        cout << "Command not found" << endl;
         return false;
     }
     if (commands.at(command).needAuth && currentUser == nullptr) {
-        std::cout << "You must be logged in to execute this command" << std::endl;
+        cout << "You must be logged in to execute this command" << endl;
         return false;
     }
 
@@ -27,25 +28,27 @@ bool canExecute(const std::string &command, std::map<std::string, std::string> a
     for (const auto &[arg, description]: argsInfos) {
         if (args.find(arg) == args.end()) {
             if (!hasError) {
-                std::cout << "Missing arguments:" << std::endl;
+                cout << "Missing arguments:" << endl;
                 hasError = true;
             }
-            std::cout << arg << ": " << description << std::endl;
+            cout << arg << ": " << description << endl;
         }
     }
 
     return !hasError;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
+    cout << "Welcome to car rental !" << endl;
+    // init sig handler
+    signal(SIGINT, signalHandler);
+
     while (true) {
-        std::string input;
-        std::cout << "$> ";
-        std::getline(std::cin, input);
+        string input;
+        cout << "$> ";
+        getline(cin, input);
 
-        auto [commandName, args] = parseInput(input);
-
-        if (canExecute(commandName, args)) {
+        if (auto [commandName, args] = parseInput(input); canExecute(commandName, args)) {
             commands.at(commandName).execute(args);
         }
     }
