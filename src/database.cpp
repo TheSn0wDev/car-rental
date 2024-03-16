@@ -30,6 +30,7 @@ User *Database::createUser(const std::string &name, const std::string &password)
         {},
         hashedPassword
     });
+    this->refresh();
 
     return &this->users.back();
 }
@@ -38,10 +39,12 @@ Car *Database::createCar(const std::string &description) {
     this->cars.push_back({
         idGenerator.generateID(),
         currentUser->id,
+        std::nullopt,
         description,
         false,
         std::nullopt
     });
+    this->refresh();
 
     return &this->cars.back();
 }
@@ -52,13 +55,15 @@ std::optional<User *> Database::getUserByName(const std::string &name) {
             return &user;
         }
     }
+    this->refresh();
 
     return std::nullopt;
 }
 
-void Database::save() const {
+void Database::save() {
     std::ofstream os(FILENAME, std::ios::binary);
 
+    this->refresh();
     if (!os) {
         throw std::runtime_error("Failed to open file: " + FILENAME);
     }
@@ -72,6 +77,7 @@ const std::vector<Car> &Database::getCars() const {
 }
 
 std::optional<Car *> Database::getCarByID(long long id) {
+    this->refresh();
     auto it = std::find_if(this->cars.begin(), this->cars.end(), [id](const Car &car) {
         return car.id == id;
     });
@@ -84,6 +90,7 @@ std::optional<Car *> Database::getCarByID(long long id) {
 }
 
 bool Database::removeCarByID(long long id) {
+    this->refresh();
     auto it = std::find_if(this->cars.begin(), this->cars.end(), [id](const Car &car) {
         return car.id == id;
     });
@@ -94,6 +101,18 @@ bool Database::removeCarByID(long long id) {
     }
 
     return false;
+}
+
+void Database::refresh() {
+    auto const now = std::chrono::system_clock::now();
+
+    for (auto &car: this->cars) {
+        if (car.until.has_value() && car.until.value() < now) {
+            car.rented = false;
+            car.renterId = std::nullopt;
+            car.until = std::nullopt;
+        }
+    }
 }
 
 Database::~Database() {

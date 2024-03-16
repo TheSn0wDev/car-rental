@@ -5,7 +5,7 @@
 #include <cstring>
 using namespace std;
 
-pair<string, map<string, string>> parseInput(const string &input) {
+pair<string, map<string, string> > parseInput(const string &input) {
     map<string, string> argsMap;
     istringstream iss(input);
     string buffer;
@@ -30,18 +30,18 @@ pair<string, map<string, string>> parseInput(const string &input) {
 
 void help(const CommandArgs &args) {
     for (const auto &[name, command]: commands) {
-        std::cout << name << ":\n";
+        cout << name << ":" << endl;
         for (const auto &[tag, description]: command.argsInfos) {
-            std::cout << "  -" << tag << ": " << description << "\n";
+            cout << "  -" << tag << ": " << description << endl;
         }
     }
 }
 
 void quit(const CommandArgs &args) {
     if (currentUser != nullptr) {
-        std::cout << "Bye " << currentUser->name << "!\n";
+        cout << "Bye " << currentUser->name << "!" << endl;
     } else {
-        std::cout << "Goodbye!\n";
+        cout << "Goodbye!" << endl;
     }
     exit(0);
 }
@@ -52,18 +52,18 @@ void login(const CommandArgs &args) {
 
         if (string const hashedInputPassword = to_string(hasher(args.at("p")));
             user->password != hashedInputPassword) {
-            cout << "Invalid username or password\n";
+            cout << "Invalid username or password" << endl;
         } else {
             currentUser = user;
-            cout << "Welcome " << user->name << "!\n";
+            cout << "Welcome " << user->name << "!" << endl;
         }
     } else {
-        cout << "Invalid username or password\n";
+        cout << "Invalid username or password" << endl;
     }
 }
 
 void logout(const CommandArgs &args) {
-    cout << "Bye " << currentUser->name << "!\n";
+    cout << "Bye " << currentUser->name << "!" << endl;
     currentUser = nullptr;
 }
 
@@ -75,7 +75,7 @@ void registerUser(const CommandArgs &args) {
 }
 
 void list(const CommandArgs &args) {
-    if (const auto& cars = database.getCars(); cars.empty()) {
+    if (const auto &cars = database.getCars(); cars.empty()) {
         cout << "No cars available at the moment" << endl;
     } else {
         dumpCarList(cars);
@@ -83,34 +83,79 @@ void list(const CommandArgs &args) {
 }
 
 void returnCar(const CommandArgs &args) {
+    auto const id = parseLong(args.at("c"));
 
+    if (!id.has_value()) {
+        cout << "Invalid car id" << endl;
+        return;
+    }
+
+    if (Car *car = database.getCarByID(id.value()).value_or(nullptr); car == nullptr) {
+        cout << "Car not found" << endl;
+    } else {
+        if (car->renterId != currentUser->id) {
+            cout << "You're not the renter of this car" << endl;
+        } else {
+            car->rented = false;
+            car->renterId = nullopt;
+            car->until = nullopt;
+            cout << "Car returned" << endl;
+        }
+    }
 }
 
 void addCar(const CommandArgs &args) {
     database.createCar(args.at("d"));
-    cout << "Car added\n";
+    cout << "Car added" << endl;
 }
 
 void removeCar(const CommandArgs &args) {
-    char *end;
-    errno = 0;
-    long long const id = strtoll(args.at("c").c_str(), &end, 10);
+    auto const id = parseLong(args.at("c"));
 
-    if (end == args.at("c").c_str() || *end != '\0' || errno != 0) {
-        cout << "Invalid car id\n";
+    if (!id.has_value()) {
+        cout << "Invalid car id" << endl;
         return;
     }
 
-    if (Car const *car = database.getCarByID(id).value_or(nullptr); car == nullptr) {
-        std::cout << "Car not found\n";
+    if (Car const *car = database.getCarByID(id.value()).value_or(nullptr); car == nullptr) {
+        cout << "Car not found" << endl;
     } else {
-        database.removeCarByID(id);
-        std::cout << "Car removed\n";
+        if (car->ownerId != currentUser->id) {
+            cout << "This car doesn't belong to you" << endl;
+        } else {
+            database.removeCarByID(id.value());
+            cout << "Car removed" << endl;
+        }
     }
 }
 
 void rent(const CommandArgs &args) {
+    auto const id = parseLong(args.at("c"));
+    auto const duration = parseLong(args.at("d"));
 
+    if (!id.has_value()) {
+        cout << "Invalid car id" << endl;
+        return;
+    }
+    if (!duration.has_value() || duration.value() <= 0) {
+        cout << "Invalid duration" << endl;
+        return;
+    }
+    if (Car *car = database.getCarByID(id.value()).value_or(nullptr); car == nullptr) {
+        cout << "Car not found" << endl;
+    } else {
+        if (car->renterId != nullopt) {
+            cout << "Car already rented" << endl;
+        } else {
+            chrono::system_clock::time_point const now = chrono::system_clock::now();
+            chrono::duration<int, ratio<60 * 60 * 24> > const numberOfDays(duration.value());
+
+            car->rented = true;
+            car->renterId = currentUser->id;
+            car->until = now + numberOfDays;
+            cout << "Car rented until " << timestampToReadable(car->until.value()) << endl;
+        }
+    }
 }
 
 void owned(const CommandArgs &args) {

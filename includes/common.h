@@ -23,6 +23,10 @@ std::pair<std::string, std::map<std::string, std::string> > parseInput(const std
 
 void dumpCarList(const std::vector<Car> &cars);
 
+std::optional<long long> parseLong(const std::string &input);
+
+std::string timestampToReadable(const std::chrono::system_clock::time_point &timestamp);
+
 void help(const CommandArgs &args);
 
 void quit(const CommandArgs &args);
@@ -53,7 +57,7 @@ const std::map<std::string, Command> commands = {
     {"logout", {logout, true, {}}},
     {"register", {registerUser, false, {{"u", "set the username"}, {"p", "set the password"}}}},
     {"list", {list, false, {}}},
-    {"rent", {rent, true, {{"c", "the car id"}}}},
+    {"rent", {rent, true, {{"c", "the car id"}, {"d", "duration in days"}}}},
     {"return", {returnCar, true, {{"c", "the car id"}}}},
     {"add", {addCar, true, {{"d", "the car description"}}}},
     {"remove", {removeCar, true, {{"c", "the car id"}}}},

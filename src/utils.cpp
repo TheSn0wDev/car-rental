@@ -2,31 +2,43 @@
 #include <chrono>
 #include <ctime>
 #include <iomanip>
+using namespace std;
 
-std::string timestampToReadable(const std::chrono::system_clock::time_point &timestamp) {
-    std::time_t const time = std::chrono::system_clock::to_time_t(timestamp);
-    std::tm const *tm = std::localtime(&time);
-    std::stringstream ss;
+string timestampToReadable(const chrono::system_clock::time_point &timestamp) {
+    time_t const time = chrono::system_clock::to_time_t(timestamp);
+    tm const *tm = localtime(&time);
+    stringstream ss;
 
-    ss << std::put_time(tm, "%Y-%m-%d %H:%M:%S"); // Format: YYYY-MM-DD HH:MM:SS
+    ss << put_time(tm, "%Y-%m-%d %H:%M:%S"); // Format: YYYY-MM-DD HH:MM:SS
 
     return ss.str();
 }
 
-void dumpCarList(const std::vector<Car> &cars) {
-    std::cout << "ID\t\tDescription\tRented\tUntil" << std::endl;
+void dumpCarList(const vector<Car> &cars) {
+    cout << "ID\t\tDescription\tRented\tUntil\tRenter" << endl;
 
-    for (const auto &[id, _, description, rented, until]: cars) {
-        std::cout << id << "\t" << description << "\t";
-        if (rented) {
-            std::cout << "\033[1;32mYes\033[0m"; // Green color
+    for (const auto &car: cars) {
+        cout << car.id << "\t" << car.description << "\t";
+        if (car.rented) {
+            cout << "\033[1;32mYes\033[0m"; // Green color
         } else {
-            std::cout << "\033[1;31mNo\033[0m"; // Red color
+            cout << "\033[1;31mNo\033[0m"; // Red color
         }
-        if (until.has_value()) {
-            std::cout << "\t" << timestampToReadable(until.value()) << std::endl;
+        if (car.until.has_value()) {
+            cout << "\t" << timestampToReadable(car.until.value()) << "\t" << car.renterId.value() << endl;
         } else {
-            std::cout << "\t-" << std::endl;
+            cout << "\t-\t-" << endl;
         }
     }
+}
+
+std::optional<long long> parseLong(const string &input) {
+    char *end;
+    errno = 0;
+    long long const id = strtoll(input.c_str(), &end, 10);
+
+    if (end == input.c_str() || *end != '\0' || errno != 0) {
+        return nullopt;
+    }
+    return id;
 }

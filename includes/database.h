@@ -25,13 +25,14 @@ public:
 typedef struct Car_t {
     long long id;
     long long ownerId;
+    std::optional<long long> renterId;
     std::string description;
     bool rented;
-    std::optional<std::chrono::time_point<std::chrono::system_clock>> until;
+    std::optional<std::chrono::time_point<std::chrono::system_clock> > until;
 
     template<class Archive>
     void serialize(Archive &archive) {
-        archive(id, ownerId, description, rented, until);
+        archive(id, ownerId, renterId, description, rented, until);
     }
 } Car;
 
@@ -66,7 +67,9 @@ public:
 
     void listCars();
 
-    void save() const;
+    void save();
+
+    void refresh();
 
     [[nodiscard]] std::optional<Car *> getCarByID(long long id);
 
