@@ -24,13 +24,14 @@ public:
 
 typedef struct Car_t {
     long long id;
+    long long ownerId;
     std::string description;
     bool rented;
     std::optional<std::chrono::time_point<std::chrono::system_clock>> until;
 
     template<class Archive>
     void serialize(Archive &archive) {
-        archive(id, description, rented, until);
+        archive(id, ownerId, description, rented, until);
     }
 } Car;
 
@@ -39,12 +40,12 @@ typedef struct User_t {
     std::string name;
     // we reference cars by their id
     std::vector<long long> rentedCars;
-    std::vector<long long> borrowedCars;
+    std::vector<long long> ownedCars;
     std::string password;
 
     template<class Archive>
     void serialize(Archive &archive) {
-        archive(id, name, rentedCars, borrowedCars, password);
+        archive(id, name, rentedCars, ownedCars, password);
     }
 } User;
 
@@ -60,11 +61,17 @@ public:
 
     User *createUser(const std::string &name, const std::string &password);
 
-    std::optional<User *> getUserByName(const std::string &name);
+    Car *createCar(const std::string &description);
+
+    bool removeCarByID(long long id);
 
     void listCars();
 
     void save() const;
+
+    [[nodiscard]] std::optional<Car *> getCarByID(long long id);
+
+    [[nodiscard]] std::optional<User *> getUserByName(const std::string &name);
 
     [[nodiscard]] const std::vector<Car> &getCars() const;
 

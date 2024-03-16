@@ -7,6 +7,7 @@
 #include "cereal/types/string.hpp"
 #include "cereal/types/chrono.hpp"
 #include "cereal/types/optional.hpp"
+#include "globals.h"
 
 const std::string Database::FILENAME = "database.bin";
 
@@ -15,7 +16,7 @@ Database::Database() {
         cereal::BinaryInputArchive archive(is);
         archive(this->users, this->cars);
     } else {
-        throw std::runtime_error("File not found: " + FILENAME);
+        std::cout << "No data found, fresh database" << std::endl;
     }
 }
 
@@ -34,19 +35,16 @@ User *Database::createUser(const std::string &name, const std::string &password)
     return &this->users.back();
 }
 
-void Database::listCars() {
-    std::vector<Car> availableCars;
-
-    // filter cars that are not rented
-    std::copy_if(this->cars.begin(), this->cars.end(), std::back_inserter(availableCars), [](const Car &car) {
-        return !car.rented;
+Car *Database::createCar(const std::string &description) {
+    this->cars.push_back({
+        idGenerator.generateID(),
+        currentUser->id,
+        description,
+        false,
+        std::nullopt
     });
 
-    if (availableCars.empty()) {
-        std::cout << "No cars available" << std::endl;
-    } else {
-        // todo: print available cars
-    }
+    return &this->cars.back();
 }
 
 std::optional<User *> Database::getUserByName(const std::string &name) {
@@ -72,6 +70,31 @@ void Database::save() const {
 
 const std::vector<Car> &Database::getCars() const {
     return this->cars;
+}
+
+std::optional<Car *> Database::getCarByID(long long id) {
+    auto it = std::find_if(this->cars.begin(), this->cars.end(), [id](const Car &car) {
+        return car.id == id;
+    });
+
+    if (it != this->cars.end()) {
+        return &(*it);
+    }
+
+    return std::nullopt;
+}
+
+bool Database::removeCarByID(long long id) {
+    auto it = std::find_if(this->cars.begin(), this->cars.end(), [id](const Car &car) {
+        return car.id == id;
+    });
+
+    if (it != this->cars.end()) {
+        this->cars.erase(it);
+        return true;
+    }
+
+    return false;
 }
 
 Database::~Database() {

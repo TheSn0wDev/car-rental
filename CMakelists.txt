@@ -17,4 +17,5 @@ include_directories(includes)
 # Create the executable
 add_executable(car-rental ${SOURCES}
         src/commands.cpp
-        src/database.cpp)
+        src/database.cpp
+        includes/globals.h)

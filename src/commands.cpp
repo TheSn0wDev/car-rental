@@ -1,5 +1,8 @@
 #include "../includes/common.h"
 #include <functional>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
 using namespace std;
 
 pair<string, map<string, string>> parseInput(const string &input) {
@@ -68,12 +71,12 @@ void registerUser(const CommandArgs &args) {
     User *newUser = database.createUser(args.at("u"), args.at("p"));
 
     currentUser = newUser;
-    cout << "User created, logged in as \"" << newUser->name << "\"\n";
+    cout << "User created, logged in as " << newUser->name << "\n";
 }
 
 void list(const CommandArgs &args) {
     if (const auto& cars = database.getCars(); cars.empty()) {
-        std::cout << "No cars available at the moment" << std::endl;
+        cout << "No cars available at the moment" << endl;
     } else {
         dumpCarList(cars);
     }
@@ -83,17 +86,40 @@ void returnCar(const CommandArgs &args) {
 
 }
 
-void borrow(const CommandArgs &args) {
-
-}
-
 void addCar(const CommandArgs &args) {
+    database.createCar(args.at("d"));
+    cout << "Car added\n";
 }
 
 void removeCar(const CommandArgs &args) {
+    char *end;
+    errno = 0;
+    long long const id = strtoll(args.at("c").c_str(), &end, 10);
+
+    if (end == args.at("c").c_str() || *end != '\0' || errno != 0) {
+        cout << "Invalid car id\n";
+        return;
+    }
+
+    if (Car const *car = database.getCarByID(id).value_or(nullptr); car == nullptr) {
+        std::cout << "Car not found\n";
+    } else {
+        database.removeCarByID(id);
+        std::cout << "Car removed\n";
+    }
+}
+
+void rent(const CommandArgs &args) {
 
 }
 
 void owned(const CommandArgs &args) {
+    auto cars = database.getCars();
+    vector<Car> ownedCars;
 
+    copy_if(cars.begin(), cars.end(), back_inserter(ownedCars), [](const Car &car) {
+        return currentUser->id == car.ownerId;
+    });
+
+    dumpCarList(ownedCars);
 }

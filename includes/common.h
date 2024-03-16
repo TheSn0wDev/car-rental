@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include "./database.h"
+#include "./globals.h"
 #include <string>
 #include <functional>
 #include <map>
@@ -17,9 +18,6 @@ typedef struct {
     std::vector<std::pair<std::string, std::string> > argsInfos;
 } Command;
 
-// global database instance
-extern Database database;
-extern User *currentUser;
 
 std::pair<std::string, std::map<std::string, std::string> > parseInput(const std::string &input);
 
@@ -39,13 +37,13 @@ void list(const CommandArgs &args);
 
 void returnCar(const CommandArgs &args);
 
-void borrow(const CommandArgs &args);
-
 void addCar(const CommandArgs &args);
 
 void removeCar(const CommandArgs &args);
 
 void owned(const CommandArgs &args);
+
+void rent(const CommandArgs &args);
 
 // commands definition
 const std::map<std::string, Command> commands = {
@@ -57,8 +55,7 @@ const std::map<std::string, Command> commands = {
     {"list", {list, false, {}}},
     {"rent", {rent, true, {{"c", "the car id"}}}},
     {"return", {returnCar, true, {{"c", "the car id"}}}},
-    {"borrow", {borrow, true, {{"u", "the user id"}}}},
-    {"add", {addCar, true, {{"m", "the car model"}, {"y", "the car year"}}}},
+    {"add", {addCar, true, {{"d", "the car description"}}}},
     {"remove", {removeCar, true, {{"c", "the car id"}}}},
     {"owned", {owned, true, {}}}
 };
